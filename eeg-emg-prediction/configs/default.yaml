@@ -1,0 +1,98 @@
+seed: 42
+data:
+  path: data/raw
+  format: grasping_box
+  pattern: '*.mat'
+  subjects: []
+  trials: []
+  tasks: []
+  eeg_unit: uV
+  emg_unit: mV
+  units_confirmed: false
+  expected_eeg_channels: 62
+  expected_emg_channels: 13
+  exclude_channels: [HEOG, VEOG, EOG, EOG1, EOG2, ECG, ECG1, ECG2]
+  event_index_base: 1
+  require_complete: false
+  sampling_rate: null
+alignment:
+  event: emg_onset
+  annotations_csv: null
+  onset:
+    muscles: []
+    baseline: [-1.5, -0.5]
+    search: [0.0, 2.0]
+    rms_ms: 25
+    sustain_ms: 50
+    mad_multiplier: 6.0
+    min_ratio: 2.0
+    min_amplitude_v: 0.000005
+    guard_ms: 100
+    active_fraction: 0.1
+    reject_pre_active: true
+    bandpass: [20.0, 400.0]
+eeg:
+  window: [-1.0, -0.1]
+  bandpass: [1.0, 40.0]
+  order: 4
+  notch: false
+  notch_hz: 50.0
+  notch_q: 30.0
+  artifact_uv: 150.0
+  reference: average
+  selected_channels: []
+emg:
+  window: [0.0, 0.5]
+  bandpass: [20.0, 400.0]
+  order: 4
+  notch: false
+  notch_hz: 50.0
+  notch_q: 30.0
+  target: rms
+  envelope_hz: 10.0
+  normalization: balanced_subject_p95
+features:
+  method: welch_bandpower
+  bands:
+    delta: [1.0, 4.0]
+    theta: [4.0, 8.0]
+    alpha: [8.0, 13.0]
+    beta: [13.0, 30.0]
+  welch_seconds: 0.9
+  overlap: 0.5
+  nfft: null
+  epsilon: 1.0e-20
+split:
+  mode: subject
+  counts: [10, 2, 2]
+  subjects: null
+  within_fractions: [0.7, 0.15, 0.15]
+  within_group: block
+model:
+  name: ridge
+  ridge:
+    alphas: [0.001, 0.01, 0.1, 1.0, 10.0, 100.0, 1000.0]
+  random_forest:
+    n_estimators: 200
+    max_depth: 15
+    min_samples_leaf: 3
+    max_features: 1.0
+    n_jobs: -1
+    search: {}
+  mlp:
+    hidden: [128, 64]
+    loss: mse
+    huber_delta: 1.0
+    learning_rate: 0.001
+    batch_size: 32
+    max_epochs: 200
+    patience: 20
+    min_delta: 0.00001
+    weight_decay: 0.0001
+paths:
+  processed: data/processed/dataset.npz
+  runs: runs
+  models: models/trained
+experiment:
+  name: null
+  permutation_repeats: 0

@@ -1,0 +1,9 @@
+Morjesta,
+Tässä tiedostossa käyn läpi minun oman käsityksen koodin toiminnasta ja datan käsittely sekä ML mallien valinnoista ja käytöstä.
+
+Aloitin valitsemalla itselleni kiinostavan aiheen, josta löytyy paljon julkisesta saatavilla olevaa dataa. 
+Valitsemani aihe on EEG-datasta käden liikkeen ennakoiminen. Käytämäni mallit tulevat olemaan 
+Päädyin "Actual Grasping Mask" -datasettiin.
+Tämän datasetin tavoite oli tutkia kuinka aivojen motorinen alue ja käsien lihakset toimivat yhdessä tarttumisliikkeen aikana. Se sisältää 2.9 Gb EEG- ja EMG-dataa.
+Data setin koko on siis paljon enemmän kuin tarpeeksi meidän tavoitteeseen.
+
