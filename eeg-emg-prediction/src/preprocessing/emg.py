@@ -14,6 +14,20 @@ def target(epoch_v, fs, cfg):
     envelope = sosfiltfilt(sos, rectified, axis=-1)
     return np.maximum(envelope, 0).mean(axis=-1)
 
+def validate_emg(emg):
+    emg = np.asarray(emg, dtype=np.float64)
+
+    if emg.ndim != 2:
+        raise ValueError("EMG must be (channels, samples)")
+
+    if not np.all(np.isfinite(emg)):
+        raise ValueError("EMG contains NaN or Inf")
+
+    if np.any(np.std(emg, axis=1) < 1e-12):
+        raise ValueError("EMG contains a flat/dead channel")
+
+    return emg
+
 
 class TargetScaler:
     """All estimates use training targets only; no test-subject fitting.

@@ -20,25 +20,51 @@ def band_filter(x, fs, cfg):
     return y
 
 
-def preprocess_eeg(epoch_v, fs, names, cfg):
-    """Accept ONLY the permitted EEG window, never a complete post-onset trial.
-
-    Filtering reflects this window at its boundaries. This prevents access to
-    future measured samples but introduces edge effects, especially near 1 Hz.
-    CAR uses all retained scalp channels before optional feature selection.
+def preprocess_eeg(
+    eeg: np.ndarray,
+    expected_channels: int = 62,
+) -> np.ndarray:
     """
-    x = np.asarray(epoch_v, dtype=float)
-    if x.ndim != 2 or x.shape[0] != len(names) or not np.isfinite(x).all():
-        raise ValueError('Expected finite channels x samples in volts')
-    if len(names) < 2:
-        raise ValueError('Common average reference requires at least two scalp channels')
-    x = x - x.mean(axis=0, keepdims=True)
-    if np.max(np.abs(x)) > cfg['artifact_uv'] * 1e-6:
-        raise ArtifactError('eeg_amplitude_before_filter')
-    x = band_filter(x, fs, cfg)
-    if np.max(np.abs(x)) > cfg['artifact_uv'] * 1e-6:
-        raise ArtifactError('eeg_amplitude_after_filter')
-    selected = cfg['selected_channels'] or names
-    if len(set(selected)) != len(selected) or not set(selected) <= set(names):
-        raise ValueError('Unknown or duplicate selected EEG channel')
-    return x[[names.index(n) for n in selected]], list(selected)
+    Validate already preprocessed / ICA-cleaned EEG data.
+
+    No filtering, ICA, rereferencing, or artifact removal is performed here.
+    The dataset's preprocessed EEG is used directly for feature extraction.
+
+    Parameters
+    ----------
+    eeg : np.ndarray
+        EEG array with shape (n_channels, n_samples).
+
+    expected_channels : int
+        Expected number of EEG channels.
+
+    Returns
+    -------
+    np.ndarray
+        Validated EEG as float64 with shape
+        (n_channels, n_samples).
+    """
+
+    eeg = np.asarray(eeg, dtype=np.float64)
+
+    # Check dimensions
+    if eeg.ndim != 2:
+        raise ValueError(
+            f"EEG must be 2-D (channels, samples), "
+            f"got shape {eeg.shape}"
+        )
+
+    # Check channel count
+    if eeg.shape[0] != expected_channels:
+        raise ValueError(
+            f"Expected {expected_channels} EEG channels, "
+            f"got {eeg.shape[0]}"
+        )
+
+    # Check invalid values
+    if not np.all(np.isfinite(eeg)):
+        raise ValueError(
+            "EEG contains NaN or infinite values."
+        )
+
+    return eeg
