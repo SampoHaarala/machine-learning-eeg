@@ -1,0 +1,18 @@
+seed: 20261006
+feature:
+  name: mrcp_full
+  include_context: false
+target:
+  mode: within_subject_task_median
+split:
+  mode: leave_one_subject_out
+  exclude_subjects: ['14']
+  inner_folds: 5
+model:
+  kind: logistic
+  c_values: [0.0001, 0.001, 0.01, 0.1, 1.0]
+  class_weight: balanced
+  max_iter: 4000
+  n_jobs: -1
+evaluation:
+  permutations: 1999
